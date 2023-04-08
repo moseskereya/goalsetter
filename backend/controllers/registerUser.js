@@ -7,13 +7,13 @@ const User = require('../models/userModel')
 const registerUser = asyncHandler(async (req, res) => {
     const { name, email, password } = req.body;
     if (!name || !email || !password) {
-        res.status(404)
+        res.status(400)
         throw new Error('Please add in all fields')
     }
     //check if user exist
     const UserExist = await User.findOne({ email })
     if (UserExist) {
-        res.status(404)
+        res.status(400)
         throw new Error('User Already Exists')
     }
 
@@ -35,7 +35,7 @@ const registerUser = asyncHandler(async (req, res) => {
             token: generateJwt(user._id)
         })
     } else {
-        res.status(404)
+        res.status(400)
         throw new Error('Inavlid User data')
     }
 })
@@ -49,32 +49,33 @@ const loginUser = asyncHandler(async (req, res) => {
           res.json({
             _id: user.id,
             name: user.name,
-              email: user.email,
+            email: user.email,
             token: generateJwt(user._id)
         })
     } else {
-       res.status(404)
+       res.status(400)
         throw new Error('Inavlid User Credentials')
     }
 })
 
-
-
 //Gererate JWT
 
 const generateJwt = (id) => {
-    return jwt.sign({id}, process.env.JWT_SECRET, {expiresIn: '30d'})
+  return jwt.sign({id}, process.env.JWT_SECRET, {expiresIn: '30d'})
 }
-
-
 
 //get user information
 const getMe = asyncHandler(async (req, res) => {
-    res.json({ msg: "Regiter user" });
+    const { _id, name, emil } = await User.findById(req.user.id)
+    res.status(200).json({
+        _id: user.id,
+        name: user.name,
+        email: user.email,
+    })
 })
 
 module.exports = {
     registerUser,
     loginUser,
     getMe
-}
+} 
